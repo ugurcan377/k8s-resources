@@ -33,17 +33,19 @@ Restart apiserver using kubeadm
 kubeadm config upload from-file --config /etc/kubeadm.conf  
 kubeadm upgrade apply 1.9.1  
 ```
-# Check
+# Check metrics-server
 ```
 kubectl api-versions  
 ```
-Check if following api endpoints exist  
+Check if following api endpoints exist at the output  
 ```
 metrics.k8s.io/v1beta1  
 autoscaling/v2beta1  
 ```
+Check if metrics-server getting any data
 ```
 kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"  
+kubectl get --raw "/apis/metrics.k8s.io/v1beta1/pods"  
 ```
 # Monitoring
 ```
