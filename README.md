@@ -19,13 +19,16 @@ docker exec -it kube-master /bin/bash
 apt install vim-tiny  
 vim.tiny /etc/kubeadm.conf  
 ```
+Add following to the file  
+```
 apiServerExtraArgs:
   runtime-config: "api/all=true"
 controllerManagerExtraArgs:
   horizontal-pod-autoscaler-use-rest-clients: "true"
   horizontal-pod-autoscaler-sync-period: "10s"
   node-monitor-grace-period: "10s"
-
+```
+Restart apiserver using kubeadm  
 ```
 kubeadm config upload from-file --config /etc/kubeadm.conf  
 kubeadm upgrade apply 1.9.1  
@@ -34,9 +37,11 @@ kubeadm upgrade apply 1.9.1
 ```
 kubectl api-versions  
 ```
+Check if following api endpoints exist  
+```
 metrics.k8s.io/v1beta1  
 autoscaling/v2beta1  
-
+```
 ```
 kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"  
 ```
