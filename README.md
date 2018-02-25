@@ -65,8 +65,7 @@ hey -z 5m url
 Login memorythrowaway  
 Password parola  
 
-# Above installs a prometheus with dashboard but for custom metrics
-# re-read below pages
+# Above installs a prometheus with dashboard but for custom metrics re-read below pages
 https://github.com/stefanprodan/k8s-prom-hpa  
 https://github.com/luxas/kubeadm-workshop  
 https://github.com/DirectXMan12/k8s-prometheus-adapter  
