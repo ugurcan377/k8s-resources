@@ -1,18 +1,17 @@
+# Requirements
+```
+sudo apt install docker.io curl
+```
+
 # Kubernetes install
 ```
-git clone git@github.com:Mirantis/kubeadm-dind-cluster.git  
+git clone https://github.com/Mirantis/kubeadm-dind-cluster.git  
 cd kubeadm-dind-cluster  
 ./fixed/dind-cluster-v1.9.sh up  
 ```
 config.sh for node count and networking  
 image/kubelet.service has eviction policies. #Haven't tried it yet  
 
-# Metrics-server install
-```
-git clone git@github.com:kubernetes-incubator/metrics-server.git  
-cd metrics-server  
-kubectl create -f deploy/1.8+/  
-```
 # Api server configuration
 ```
 docker exec -it kube-master /bin/bash  
@@ -33,6 +32,14 @@ Restart apiserver using kubeadm
 kubeadm config upload from-file --config /etc/kubeadm.conf  
 kubeadm upgrade apply 1.9.1  
 ```
+
+# Metrics-server install
+```
+git clone https://github.com/kubernetes-incubator/metrics-server.git  
+cd metrics-server  
+kubectl create -f deploy/1.8+/  
+```
+
 # Check metrics-server
 ```
 kubectl api-versions  
@@ -49,18 +56,34 @@ kubectl get --raw "/apis/metrics.k8s.io/v1beta1/pods"
 ```
 # Monitoring
 ```
-git clone git@github.com:coreos/prometheus-operator.git  
+git clone https://github.com/coreos/prometheus-operator.git  
 cd contrib/kube-prometheus/  
 hack/cluster-monitoring/deploy  
 ```
+Prometheus UI on node port `30900`  
+Alertmanager UI on node port `30903`  
+Grafana (Dashboard) on node port `30902`  
+
 # Dashboard link
 http://localhost:8080/api/v1/namespaces/kube-system/services/kubernetes-dashboard:/proxy  
+
+# Go install
+```
+sudo apt install golang-1.9
+```
+Then add these to .profile
+```
+export GOPATH="$HOME/workspace/go"
+PATH="$PATH:/usr/lib/go-1.9/bin/:$GOPATH:$GOPATH/bin"
+
+```
 
 # Benchmark tool
 ```
 go get -u github.com/rakyll/hey  
 hey -z 5m url  
 ```
+
 # Throwaway docker hub account
 Login memorythrowaway  
 Password parola  
