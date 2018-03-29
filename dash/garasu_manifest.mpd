@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:mpeg:DASH:schema:MPD:2011"
+  xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011"
+  type="static"
+  mediaPresentationDuration="PT240.074S"
+  minBufferTime="PT1S"
+  profiles="urn:webm:dash:profile:webm-on-demand:2012">
+<Period id="0" start="PT0S" duration="PT240.074S" >
+<AdaptationSet id="0" mimeType="video/webm" codecs="vp9" bitstreamSwitching="true" subsegmentAlignment="false" subsegmentStartsWithSAP="0">
+<Representation id="0" bandwidth="320932" width="320" height="180">
+<BaseURL>garasu_320x180_500k.webm</BaseURL>
+<SegmentBase
+  indexRange="6861832-6862610">
+<Initialization
+  range="0-791" />
+</SegmentBase>
+</Representation>
+<Representation id="1" bandwidth="386255" width="640" height="360">
+<BaseURL>garasu_640x360_750k.webm</BaseURL>
+<SegmentBase
+  indexRange="11634387-11634415">
+<Initialization
+  range="0-792" />
+</SegmentBase>
+</Representation>
+<Representation id="2" bandwidth="439450" width="640" height="360">
+<BaseURL>garasu_640x360_1000k.webm</BaseURL>
+<SegmentBase
+  indexRange="13236579-13236607">
+<Initialization
+  range="0-792" />
+</SegmentBase>
+</Representation>
+<Representation id="3" bandwidth="786423" width="1280" height="720">
+<BaseURL>garasu_1280x720_1500k.webm</BaseURL>
+<SegmentBase
+  indexRange="23687064-23687092">
+<Initialization
+  range="0-792" />
+</SegmentBase>
+</Representation>
+<Representation id="4" bandwidth="1254029" width="1920" height="1080">
+<BaseURL>garasu_1920x1080_2500k.webm</BaseURL>
+<SegmentBase
+  indexRange="37770908-37770936">
+<Initialization
+  range="0-792" />
+</SegmentBase>
+</Representation>
+</AdaptationSet>
+<AdaptationSet id="1" mimeType="audio/webm" codecs="vorbis" audioSamplingRate="44100" bitstreamSwitching="true" subsegmentAlignment="true" subsegmentStartsWithSAP="1">
+<Representation id="5" bandwidth="264502">
+<BaseURL>garasu_audio.webm</BaseURL>
+<SegmentBase
+  indexRange="7508087-7509062">
+<Initialization
+  range="0-4812" />
+</SegmentBase>
+</Representation>
+</AdaptationSet>
+</Period>
+</MPD>

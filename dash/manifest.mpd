@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:mpeg:DASH:schema:MPD:2011"
+  xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011"
+  type="static"
+  mediaPresentationDuration="PT279.293S"
+  minBufferTime="PT1S"
+  profiles="urn:webm:dash:profile:webm-on-demand:2012">
+<Period id="0" start="PT0S" duration="PT279.293S" >
+<AdaptationSet id="0" mimeType="video/webm" codecs="vp9" bitstreamSwitching="true" subsegmentAlignment="false" subsegmentStartsWithSAP="0">
+<Representation id="0" bandwidth="188829" width="160" height="190">
+<BaseURL>video_160x90_250k.webm</BaseURL>
+<SegmentBase
+  indexRange="5962842-5963957">
+<Initialization
+  range="0-815" />
+</SegmentBase>
+</Representation>
+<Representation id="1" bandwidth="350783" width="320" height="180">
+<BaseURL>video_320x180_500k.webm</BaseURL>
+<SegmentBase
+  indexRange="9534484-9534512">
+<Initialization
+  range="0-807" />
+</SegmentBase>
+</Representation>
+<Representation id="2" bandwidth="386255" width="640" height="360">
+<BaseURL>video_640x360_750k.webm</BaseURL>
+<SegmentBase
+  indexRange="18118698-18118726">
+<Initialization
+  range="0-808" />
+</SegmentBase>
+</Representation>
+<Representation id="3" bandwidth="786423" width="1280" height="720">
+<BaseURL>video_1280x720_1500k.webm</BaseURL>
+<SegmentBase
+  indexRange="37212587-37212615">
+<Initialization
+  range="0-808" />
+</SegmentBase>
+</Representation>
+</AdaptationSet>
+<AdaptationSet id="1" mimeType="audio/webm" codecs="vorbis" audioSamplingRate="44100" bitstreamSwitching="true" subsegmentAlignment="true" subsegmentStartsWithSAP="1">
+<Representation id="4" bandwidth="126812">
+<BaseURL>audio.webm</BaseURL>
+<SegmentBase
+  indexRange="4389681-4390795">
+<Initialization
+  range="0-5060" />
+</SegmentBase>
+</Representation>
+</AdaptationSet>
+</Period>
+</MPD>
