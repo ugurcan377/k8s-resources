@@ -1,0 +1,26 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: monitoring-test
+  labels:
+    app: montest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: montest
+  template:
+    metadata:
+      labels:
+        app: montest
+    spec:
+      containers:
+      - name: nginx-vts
+        image: ugurcan377/nginx-vts
+        ports:
+        - containerPort: 80
+      - name: vts-exporter
+        image: sophos/nginx-vts-exporter
+        ports:
+        - containerPort: 9913
+

@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: montest-service
+  labels:
+    app: montest
+    k8s-app: montest
+spec:
+  selector:
+    app: montest
+  ports:
+  - port: 9913
+    targetPort: 9913
+    name: vts-exporter
