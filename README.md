@@ -67,6 +67,12 @@ Grafana (Dashboard) on node port `30902`
 # Dashboard link
 http://localhost:8080/api/v1/namespaces/kube-system/services/kubernetes-dashboard:/proxy  
 
+# Error: Path is mounted on but it is not a shared or slave mount.
+You have to execute this command on the nodes
+```
+mount --make-shared PATH
+```
+
 # Go install
 ```
 sudo apt install golang-1.9
