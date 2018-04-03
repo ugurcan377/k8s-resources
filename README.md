@@ -82,7 +82,7 @@ pods or `-n monitoring` for prometheus.
 `kubectl describe resource/RESOURCE_NAME` is essential for debugging.
 
 For getting inside of a container
-`docker exec -it CONTAINER_ID /bin/bash` or `kubectl exec -it POD_NAME /bin/bash`
+`docker exec -it CONTAINER_ID /bin/bash` or `kubectl exec -it POD_NAME /bin/bash`  
 For learning ip address of docker container
 ```
 docker inspect CONTAINER_ID | grep '"IPAddress"' | head -n 1
