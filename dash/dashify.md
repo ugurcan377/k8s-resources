@@ -35,7 +35,20 @@ Notes
 | 640     | 480      | 350        |
 
 # Audio Preparation
-You should use the other method for now
-
+```
+ffmpeg -i video.mp4 -vn -acodec libvorbis -ab 320k -dash 1 audio.webm
+```
+```
+ffmpeg \
+  -f webm_dash_manifest -i audio.webm -c copy -map 0 \
+  -f webm_dash_manifest -adaptation_sets "id=0,streams=0" audio_manifest.mpd
+```
 # Final Manifest
-You would have merge these 
+MP4Box create a seperate manifest for each resolution. You should merge these into a single
+manifest along with audio.  
+You should start with the manifest of the highest resolution as template. But this is not a
+requirement. As long as `<AdaptationSet>` arguments `maxWidth` and `maxHeight` is correct
+there is no problem.  
+Then you should copy the whole `<Representation>` tag. Don't forget to change the ids.  
+For audio instead of copying just the `<Representation>` you should copy the entire
+`<AdaptationSet>`. You should copy it under `<Period>` not `<AdaptationSet>`
