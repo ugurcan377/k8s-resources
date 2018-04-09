@@ -33,30 +33,20 @@ songs
 
 ## Testing scheme 
 
-| Node #  | G Server # | L Server # | S Server # |
-| ------- |:----------:|:----------:| ----------:|
-| 1       | 1          | 1          | 1          |
-| 1       | 10         | 1          | 1          |
-| 1       | 25         | 1          | 1          |
-| 1       | 50         | 1          | 1          |
-| 1       | 75         | 1          | 1          |
-| 1       | 100        | 1          | 1          |
-| 1       | 5          | 5          | 1          |
-| 1       | 12         | 12         | 1          |
-| 1       | 25         | 25         | 1          |
-| 1       | 50         | 50         | 1          |
-| 1       | 60         | 60         | 1          |
-| 2       | 1          | 1          | 1          |
-| 2       | 10         | 1          | 1          |
-| 2       | 25         | 1          | 1          |
-| 2       | 50         | 1          | 1          |
-| 2       | 75         | 1          | 1          |
-| 2       | 100        | 1          | 1          |
-| 2       | 5          | 5          | 1          |
-| 2       | 12         | 12         | 1          |
-| 2       | 25         | 25         | 1          |
-| 2       | 50         | 50         | 1          |
-| 2       | 60         | 60         | 1          |
+| G Server # | L Server # | S Server # |
+|:-----------|:----------:| ----------:|
+| 1          | 1          | 1          |
+| 10         | 1          | 1          |
+| 25         | 1          | 1          |
+| 50         | 1          | 1          |
+| 75         | 1          | 1          |
+| 100        | 1          | 1          |
+| 5          | 5          | 1          |
+| 12         | 12         | 1          |
+| 25         | 25         | 1          |
+| 50         | 50         | 1          |
+| 60         | 60         | 1          |
+
 
 # Observations During Experiments
 - Cluster is running on docker. Therefore nodes have full access the hosts computing resources.
@@ -70,3 +60,5 @@ old Intel i7 920.
 container performance. Since same software runs the same tests for all cases I don't think that
 compromised the tests reliablity.
 - I refrained from using the host machine during tests to alleviate shared resources issue.
+- Testing multi node latency with NodePort may be deceiving. Running tests inside of the cluster seems to
+be a better idea
