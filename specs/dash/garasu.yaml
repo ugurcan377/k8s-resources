@@ -1,0 +1,36 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: garasu-deployment
+  labels:
+    app: garasu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: garasu
+  template:
+    metadata:
+      labels:
+        app: garasu
+    spec:
+      containers:
+      - name: nginx-vts
+        image: ugurcan377/nginx-vts
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /var/www/html/dash-videos/garasu/
+          name: dash-videos
+        - mountPath: /var/www/html/index.html
+          name: dash-index
+      volumes:
+      - name: dash-videos
+        hostPath:
+          path: /opt/dash-videos/garasu
+          type: Directory
+      - name: dash-index
+        hostPath:
+          path: /opt/dash-videos/garasu/garasu.html
+          type: File
+

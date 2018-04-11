@@ -1,0 +1,36 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: startdash-deployment
+  labels:
+    app: startdash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: startdash
+  template:
+    metadata:
+      labels:
+        app: startdash
+    spec:
+      containers:
+      - name: nginx-vts
+        image: ugurcan377/nginx-vts
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /var/www/html/dash-videos/startdash/
+          name: dash-videos
+        - mountPath: /var/www/html/index.html
+          name: dash-index
+      volumes:
+      - name: dash-videos
+        hostPath:
+          path: /opt/dash-videos/startdash
+          type: Directory
+      - name: dash-index
+        hostPath:
+          path: /opt/dash-videos/startdash/startdash.html
+          type: File
+
