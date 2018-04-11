@@ -2,6 +2,11 @@
 ```
 sudo apt install docker.io curl
 ```
+Add user to docker group.
+```
+sudo usermod -aG docker $USER
+```
+Remember you have to logout and re-login for changes to take effect
 
 # Kubernetes install
 ```
@@ -11,6 +16,12 @@ cd kubeadm-dind-cluster
 ```
 config.sh for node count and networking  
 image/kubelet.service has eviction policies. #Haven't tried it yet  
+
+# Install kubectl
+Easiest way to install kubectl in Ubuntu is using snap packages.
+```
+snap install kubectl --classic
+```
 
 # Api server configuration
 ```
