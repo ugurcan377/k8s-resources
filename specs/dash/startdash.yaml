@@ -1,7 +1,7 @@
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: startdash-deployment
+  name: startdash
   labels:
     app: startdash
 spec:
@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: startdash
+        video: dash
     spec:
       containers:
       - name: nginx-vts
@@ -20,17 +21,21 @@ spec:
         ports:
         - containerPort: 80
         volumeMounts:
-        - mountPath: /var/www/html/dash-videos/startdash/
+        - mountPath: /var/www/html/dash-videos/start-dash
           name: dash-videos
         - mountPath: /var/www/html/index.html
           name: dash-index
+      - name: vts-exporter
+        image: sophos/nginx-vts-exporter
+        ports:
+        - containerPort: 9913
       volumes:
       - name: dash-videos
         hostPath:
-          path: /opt/dash-videos/startdash
+          path: /opt/dash-videos/start-dash
           type: Directory
       - name: dash-index
         hostPath:
-          path: /opt/dash-videos/startdash/startdash.html
+          path: /opt/dash-videos/start-dash/startdash.html
           type: File
 

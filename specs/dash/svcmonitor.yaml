@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: monitoring-test
+  namespace: monitoring
+  labels:
+    k8s-app: montest
+spec:
+  jobLabel: k8s-app
+  endpoints:
+  - port: vts-exporter
+    interval: 10s
+  selector:
+    matchLabels:
+      k8s-app: montest
+  namespaceSelector:
+    matchNames:
+    - default
