@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 KeyakiGreen = '#4ab14b'
 scheme1 = ((1, 1, 1), (10, 1, 1), (25, 1, 1), (50, 1, 1), (75, 1, 1), (100, 1, 1))
-scheme2 = ((1, 1, 1), (5, 5, 1), (12, 12, 1), (25, 25, 1), (50, 50, 1)) # , (60, 60, 1)
+scheme2 = ((1, 1, 1), (5, 5, 1), (12, 12, 1), (25, 25, 1), (37, 37, 1), (50, 50, 1)) # , (60, 60, 1)
 
 
 def parse_dict(source, query):
@@ -31,12 +31,12 @@ def parse_dict(source, query):
         return 0
 
 
-def get_file_list(req, node, scheme, net='bridge'):
+def get_file_list(req, node, scheme, count, net='bridge'):
     file_list = []
-    fn_template="{srv}_{net}_{node}_{g}_{l}_{s}_{req}.json"
+    fn_template="{srv}_{net}_{node}_{g}_{l}_{s}_{count}_{req}.json"
     for g, l, s in scheme:
         arg_dict = {"srv": "g", "net": net, "g": g, "l": l,
-                    "s": s, "node": node, "req": req}
+                    "s": s, "node": node, "req": req, "count": count}
         g_file = fn_template.format(**arg_dict)
         arg_dict["srv"] = "l"
         l_file = fn_template.format(**arg_dict)
@@ -64,15 +64,26 @@ def prepare_datasource(file_list, query):
     return g_ds, l_ds, s_ds
 
 
+def get_mean_values(query, req, node, scheme, exp_count, net='bridge'):
+    g_res, l_res, s_res = [], [], []
+    for exp in range(1, exp_count+1):
+        fl = get_file_list(req, node, scheme, exp, net)
+        result = prepare_datasource(fl, query)
+        g_res.append(result[0])
+        l_res.append(result[1])
+        s_res.append(result[2])
+    mean = lambda res: [sum(k)/len(k) for k in zip(*res)]
+    return mean(g_res), mean(l_res), mean(s_res)
+
 def bar_chart(ds1, ds2, ds3, scheme, metadata):
 
     ind = np.arange(len(ds1))  # the x locations for the groups
     width = 0.27  # the width of the bars
 
     fig, ax = plt.subplots()
-    rects1 = ax.bar(ind - width , ds1, width, color= KeyakiGreen, label='G')
-    rects2 = ax.bar(ind , ds2, width, color='SkyBlue', label='L')
-    rects3 = ax.bar(ind + width , ds3, width, color='IndianRed', label='S')
+    rects1 = ax.bar(ind - width , ds1, width, color= KeyakiGreen, label='App 1')
+    rects2 = ax.bar(ind , ds2, width, color='SkyBlue', label='App 2')
+    rects3 = ax.bar(ind + width , ds3, width, color='IndianRed', label='App 3')
 
     def autolabel(rects, index, xpos='center'):
         """
@@ -104,17 +115,17 @@ def bar_chart(ds1, ds2, ds3, scheme, metadata):
     plt.savefig(open("figures/{exp}_{net}_{node}_{req}_s{scheme}.png".format(**metadata), 'w'))
 
 def all_charts(query, exp, chart_meta):
-    net_list = ["bridge"]
-    node_list = [1]
-    req_list = [100, 1000, 10000, 50000, 100000]
-    scheme_list = [scheme1, scheme2]
+    net_list = ["flannel", "calico", "weave"]
+    node_list = [2]
+    req_list = [10000, 30000, 50000, 80000, 100000]
+    scheme_list = [scheme1]
+    exp_count = 3
     for net in net_list:
         for node in node_list:
             for req in req_list:
                 for i,scheme in enumerate(scheme_list):
                     try:
-                        fl = get_file_list(req, node, scheme)
-                        ds1, ds2, ds3 = prepare_datasource(fl, query)
+                        ds1, ds2, ds3 = get_mean_values(query, req, node, scheme, exp_count, net)
                         bar_chart(ds1, ds2, ds3, scheme, {
                             "net": net, "node": node, "req": req, "scheme": i+1, "exp": exp, "chart": chart_meta})
                     except IOError as e:
