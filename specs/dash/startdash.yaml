@@ -21,10 +21,15 @@ spec:
         ports:
         - containerPort: 80
         volumeMounts:
-        - mountPath: /var/www/html/dash-videos/start-dash
+        - mountPath: /var/www/html/dash-videos/startdash
           name: dash-videos
         - mountPath: /var/www/html/index.html
           name: dash-index
+        resources:
+          requests:
+            cpu: "10m"
+          limits:
+            cpu: "250m"
       - name: vts-exporter
         image: sophos/nginx-vts-exporter
         ports:
@@ -32,10 +37,10 @@ spec:
       volumes:
       - name: dash-videos
         hostPath:
-          path: /opt/dash-videos/start-dash
+          path: /opt/dash-videos/startdash
           type: Directory
       - name: dash-index
         hostPath:
-          path: /opt/dash-videos/start-dash/startdash.html
+          path: /opt/dash-videos/startdash/startdash.html
           type: File
 

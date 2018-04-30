@@ -25,6 +25,11 @@ spec:
           name: dash-videos
         - mountPath: /var/www/html/index.html
           name: dash-index
+        resources:
+          requests:
+            cpu: "10m"
+          limits:
+            cpu: "250m"
       - name: vts-exporter
         image: sophos/nginx-vts-exporter
         ports:
