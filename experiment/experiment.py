@@ -30,12 +30,12 @@ def run_auto(net, node, exp):
     status_template = 'kubectl get deploy/{selection} -o json'
     schemes = (((1, 1, 1), (10, 1, 1), (25, 1, 1), (50, 1, 1), (75, 1, 1), (100, 1, 1)),
     ((1, 1, 1), (5, 5, 1), (12, 12, 1), (25, 25, 1), (37, 37, 1), (50, 50, 1)))
-    experiments = exp
-    for exp in range(1,experiments+1)
+    experiments = int(exp)
+    for exp in range(1,experiments+1):
         print 'Starting Experiment #{}'.format(exp)
         for scheme in schemes:
             for g, l, s in scheme:
-                print 'Starting experiment for {}/{}/{}/{}/{}'.format(net, node, g, l, s)
+                print 'Starting experiment {} for {}/{}/{}/{}/{}'.format(exp, net, node, g, l, s)
                 delegator.run(scale_template.format(selection='garasu', count=g))
                 delegator.run(scale_template.format(selection='lat', count=l))
                 delegator.run(scale_template.format(selection='startdash', count=s))
