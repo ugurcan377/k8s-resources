@@ -4,7 +4,7 @@ from tabulate import tabulate
 
 
 scheme1 = ((1, 1, 1), (10, 1, 1), (25, 1, 1), (50, 1, 1), (75, 1, 1), (100, 1, 1))
-
+scheme2 = ((1, 1, 1), (5, 5, 1), (12, 12, 1), (25, 25, 1), (37, 37, 1), (50, 50, 1))
 
 def parse_dict(source, query):
     template = ".get('{}', {{}})"
@@ -41,11 +41,12 @@ net_list = ["flannel", "calico", "weave"]
 node_list = [2]
 req_list = [10000, 30000, 50000, 80000, 100000]
 scheme = scheme1
-exp_count = 3
-thresholds = ((10, "ten"), (15, "fifteen"), (20, "twenty"))
-srv = "g"
-q = ["result/latency/mean"]
-headers = ["Network", "Request #", "Srv", "Instances", "Thr","Exp #", "Mean Lat"]
+exp_count = 10
+thresholds = ((10, "on"),)
+srv = "l"
+q = ["result/latency/mean", "result/latency/max", "result/bytesRead", "result/timeTakenSeconds"]
+headers = ["Network", "Request #", "Srv", "Instances", "Thr","Exp #", "Mean Lat", "Max Lat",
+ "Bytes Read", "Time"]
 
 for net in net_list:
     for node in node_list:

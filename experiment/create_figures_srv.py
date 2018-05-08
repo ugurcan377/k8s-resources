@@ -1,0 +1,141 @@
+"""
+========
+Barchart
+========
+
+A bar plot with errorbars and height labels on individual bars.
+"""
+import json
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+KeyakiGreen = '#4ab14b'
+scheme1 = ((1, 1, 1), (10, 1, 1), (25, 1, 1), (50, 1, 1), (75, 1, 1), (100, 1, 1))
+scheme2 = ((1, 1, 1), (5, 5, 1), (12, 12, 1), (25, 25, 1), (37, 37, 1), (50, 50, 1)) # , (60, 60, 1)
+
+
+def parse_dict(source, query):
+    template = ".get('{}', {{}})"
+    cmd = "source"
+    for q in query.split("/"):
+        if '#' in q:
+            q = q.replace('#', '')
+            cmd += template.format(q) + "[0]"
+        else:
+            cmd += template.format(q)
+    try:
+        return eval(cmd) or 0
+    except KeyError:
+        return 0
+
+
+def get_file_list(req, node, scheme, count, net, srv):
+    file_list = []
+    fn_template="on/{srv}_{net}_{node}_{g}_{l}_{s}_{count}_{req}.json"
+    for g, l, s in scheme:
+        arg_dict = {"srv": srv, "net": "flannel", "g": g, "l": l,
+                    "s": s, "node": node, "req": req, "count": count}
+        g_file = fn_template.format(**arg_dict)
+        arg_dict["net"] = "calico"
+        l_file = fn_template.format(**arg_dict)
+        arg_dict["net"] = "weave"
+        s_file = fn_template.format(**arg_dict)
+        file_list.append((g_file, l_file, s_file))
+    return file_list
+
+
+def get_raw_data(fname):
+    return json.loads(json.load(open(fname)))
+
+
+def prepare_datasource(file_list, query):
+    g_ds = []
+    l_ds = []
+    s_ds = []
+    for gf, lf, sf in file_list:
+        g_data = get_raw_data(gf)
+        g_ds.append(parse_dict(g_data, query))
+        l_data = get_raw_data(lf)
+        l_ds.append(parse_dict(l_data, query))
+        s_data = get_raw_data(sf)
+        s_ds.append(parse_dict(s_data, query))
+    return g_ds, l_ds, s_ds
+
+
+def get_mean_values(query, req, node, scheme, exp_count, net, srv):
+    g_res, l_res, s_res = [], [], []
+    for exp in range(1, exp_count+1):
+        fl = get_file_list(req, node, scheme, exp, net, srv)
+        result = prepare_datasource(fl, query)
+        g_res.append(result[0])
+        l_res.append(result[1])
+        s_res.append(result[2])
+    mean = lambda res: [sum(k)/len(k) for k in zip(*res)]
+    return mean(g_res), mean(l_res), mean(s_res)
+
+def bar_chart(ds1, ds2, ds3, scheme, metadata):
+
+    ind = np.arange(len(ds1))  # the x locations for the groups
+    width = 0.27  # the width of the bars
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(ind - width , ds1, width, color= KeyakiGreen, label='flannel')
+    rects2 = ax.bar(ind , ds2, width, color='SkyBlue', label='calico')
+    rects3 = ax.bar(ind + width , ds3, width, color='IndianRed', label='weave')
+
+    def autolabel(rects, index, xpos='center'):
+        """
+        Attach a text label above each bar in *rects*, displaying its height.
+
+        *xpos* indicates which side to place the text w.r.t. the center of
+        the bar. It can be one of the following {'center', 'right', 'left'}.
+        """
+
+        xpos = xpos.lower()  # normalize the case of the parameter
+        ha = {'center': 'center', 'right': 'left', 'left': 'right'}
+        offset = {'center': 0.5, 'right': 0.57, 'left': 0.43}  # x_txt = x + w*off
+
+        for i, rect in enumerate(rects):
+            ax.text(rect.get_x() + rect.get_width() * offset[xpos], 1,
+                    '{}'.format(scheme[i][index]), ha=ha[xpos], va='bottom')
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel(metadata['chart']['x'])
+    ax.set_xlabel(metadata['chart']['y'])
+    ax.set_xticklabels([])
+    ax.set_title(metadata['chart']['title'].format(**metadata))
+    ax.legend()
+    
+    label_dict = {"g": 0, "l": 1, "s": 2}
+    #autolabel(rects1, label_dict[metadata["srv"]], "center")
+    autolabel(rects2, label_dict[metadata["srv"]], "center")
+    #autolabel(rects3, label_dict[metadata["srv"]], "center")
+
+    plt.savefig(open("on/figures/{exp}_{srv}_{node}_{req}_s{scheme}.png".format(**metadata), 'w'))
+
+def all_charts(query, exp, chart_meta):
+    net_list = ["flannel", "calico", "weave"]
+    node_list = [2]
+    req_list = [10000, 30000, 50000, 80000, 100000]
+    scheme_list = [scheme1, scheme2]
+    srv_list = ["g", "s", "l"]
+    exp_count = 10
+    net = ''
+    for srv in srv_list:
+        for node in node_list:
+            for req in req_list:
+                for i,scheme in enumerate(scheme_list):
+                    try:
+                        ds1, ds2, ds3 = get_mean_values(query, req, node, scheme, exp_count, net, srv)
+                        bar_chart(ds1, ds2, ds3, scheme, {
+                            "net": net, "node": node, "req": req, "scheme": i+1, "exp": exp,
+                            "srv": srv, "chart": chart_meta})
+                    except IOError as e:
+                        print e
+
+
+all_charts("result/latency/mean", "meanlat", {
+    'x': "Latency (us)", "y": "Instance count",
+    "title": "Mean Latency for {srv} Server {node} Nodes {req} Requests"})
