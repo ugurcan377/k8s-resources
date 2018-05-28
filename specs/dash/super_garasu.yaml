@@ -1,0 +1,32 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: supergarasu
+  labels:
+    app: supergarasu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supergarasu
+  template:
+    metadata:
+      labels:
+        app: supergarasu
+        video: dash
+    spec:
+      containers:
+      - name: nginx-vts
+        image: ugurcan377/nginx-vts
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "10m"
+          limits:
+            cpu: "2500m"
+      - name: vts-exporter
+        image: sophos/nginx-vts-exporter
+        ports:
+        - containerPort: 9913
+
