@@ -26,14 +26,21 @@ def run_exp(net, exp_str, srv_key):
 
 @click.command()
 @click.option("--net")
-@click.option("--deploy")
+@click.option("--srv")
 @click.option("--exp")
-def run_auto(net, deploy, exp):
+def run_auto(net, srv, exp):
+    deployments = {
+        "g": "garasu",
+        "l": "lat",
+        "s": "startdash",
+        "super": "supergarasu",
+    }
     scale_template = "kubectl scale deploy/{selection} --replicas={count}"
     status_template = 'kubectl get deploy/{selection} -o json'
     schemes = range(10, 101, 5)
     schemes = [10]
     experiments = int(exp)
+    deploy = deployments[srv]
     for exp in range(1,experiments+1):
         print 'Starting Experiment #{}'.format(exp)
         for g in schemes:
@@ -48,7 +55,7 @@ def run_auto(net, deploy, exp):
                 else:
                     cycle += 1
                     time.sleep(10)
-            run_exp(net, '{}_{}'.format(g, exp), 'super')
+            run_exp(net, '{}_{}'.format(g, exp), srv)
     delegator.run(scale_template.format(selection=deploy, count=1))
 
 run_auto()
