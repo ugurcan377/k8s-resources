@@ -87,7 +87,8 @@ def charts_by_conn(ename, exp_count, chart_meta):
     scheme = [1]
     srv = 'super'
     conn_list = range(100, 2001, 50)
-    query_list = ["mean", "50th", "95th", "99th"]
+    query_list = ["mean", "50th", "95th", "99th", "max"]
+    query_list = query_list[3:]
     query_tmp = "latencies/{}"
     for exp in range(1, exp_count+1):
         for net in net_list:
@@ -104,8 +105,31 @@ def charts_by_conn(ename, exp_count, chart_meta):
                     print e
 
 
+def avg_charts_by_conn(ename, exp_count, chart_meta):
+    net = "flannel"
+    sch = 10
+    srv = "g"
+    conn_list = range(100, 2001, 50)
+    query_list = ["mean", "50th", "95th", "99th", "max"]
+    query_tmp = "latencies/{}"
+    try:
+        ds_list = []
+        mean = lambda res: [sum(k)/len(k) for k in zip(*res)]
+        for q in query_list:
+            exp_list = []
+            for exp in range(1, exp_count+1):
+                fl1 = file_list_by_conn(sch, srv, net, exp, conn_list)
+                exp_list.append(prepare_datasource(fl1, query_tmp.format(q)))
+            ds_list.append((q, mean(exp_list)))
+        chart(ds_list, conn_list, {
+            "net": net, "conn": sch, "scheme": 1,
+            "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': ename})
+    except IOError as e:
+        print e
+
+
 @click.command()
-@click.option('--ctype', type=click.Choice(['scheme', 'conn']))
+@click.option('--ctype', type=click.Choice(['scheme', 'conn', 'avgconn']))
 @click.option('--exp', default=1)
 @click.option('--ename', default='subete')
 def charts(ctype, exp, ename):
@@ -116,9 +140,12 @@ def charts(ctype, exp, ename):
         meta_data['title'] = "Latency for {srv} Server {conn} Connections"
         charts_by_scheme(ename, exp, meta_data)
         
-    if ctype == 'conn':
+    if ctype in ['conn', 'avgconn']:
         meta_data['y'] = 'Connection count'
         meta_data['title'] = "Latency for {srv} Server {sch} Instances"
-        charts_by_conn(ename, exp, meta_data)
+        if ctype == 'conn':
+            charts_by_conn(ename, exp, meta_data)
+        if ctype == 'avgconn':
+            avg_charts_by_conn(ename, exp, meta_data)
 
 charts()
