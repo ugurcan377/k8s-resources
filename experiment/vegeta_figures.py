@@ -88,7 +88,6 @@ def charts_by_conn(ename, exp_count, chart_meta):
     srv = 'super'
     conn_list = range(100, 2001, 50)
     query_list = ["mean", "50th", "95th", "99th", "max"]
-    query_list = query_list[3:]
     query_tmp = "latencies/{}"
     for exp in range(1, exp_count+1):
         for net in net_list:
@@ -98,32 +97,32 @@ def charts_by_conn(ename, exp_count, chart_meta):
                     ds_list = []
                     for q in query_list:
                         ds_list.append((q, prepare_datasource(fl1, query_tmp.format(q))))
-                    chart(ds_list, conn_list, {
-                        "net": net, "conn": sch, "scheme": 1,
-                        "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': ename})
+                        chart(ds_list, conn_list, {
+                            "net": net, "conn": sch, "scheme": 1,
+                            "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': q})
                 except IOError as e:
                     print e
 
 
 def avg_charts_by_conn(ename, exp_count, chart_meta):
     net = "flannel"
-    sch = 10
-    srv = "g"
+    sch = chart_meta['setup'][1]
+    srv = chart_meta['setup'][0]
     conn_list = range(100, 2001, 50)
     query_list = ["mean", "50th", "95th", "99th", "max"]
     query_tmp = "latencies/{}"
     try:
-        ds_list = []
         mean = lambda res: [sum(k)/len(k) for k in zip(*res)]
         for q in query_list:
+            ds_list = []
             exp_list = []
             for exp in range(1, exp_count+1):
                 fl1 = file_list_by_conn(sch, srv, net, exp, conn_list)
                 exp_list.append(prepare_datasource(fl1, query_tmp.format(q)))
             ds_list.append((q, mean(exp_list)))
-        chart(ds_list, conn_list, {
-            "net": net, "conn": sch, "scheme": 1,
-            "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': ename})
+            chart(ds_list, conn_list, {
+                "net": net, "conn": sch, "scheme": 1,
+                "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': "{}_avg".format(q)})
     except IOError as e:
         print e
 
@@ -132,8 +131,9 @@ def avg_charts_by_conn(ename, exp_count, chart_meta):
 @click.option('--ctype', type=click.Choice(['scheme', 'conn', 'avgconn']))
 @click.option('--exp', default=1)
 @click.option('--ename', default='subete')
-def charts(ctype, exp, ename):
-    meta_data = {'x': "Latency (ms)", "y": "", "title": "",}
+@click.option('--setup', type=(unicode, int))
+def charts(ctype, exp, ename, setup):
+    meta_data = {'x': "Latency (ms)", "y": "", "title": "", "setup": setup}
     
     if ctype == 'scheme':
         meta_data['y'] = "Instance count"

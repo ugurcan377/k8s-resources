@@ -9,7 +9,8 @@ def run_exp(net, exp_str, srv_key):
     "g": "http://10.192.0.3:32223",
     "l": "http://10.192.0.3:32224",
     "s": "http://10.192.0.3:32225",
-    "super": "http://10.192.0.3:32226"
+    "super": "http://10.192.0.3:32226",
+    "xl": "http://10.192.0.3:32227",
     }
     tests = range(100, 2001, 50)
     cmd_template = "echo 'GET {srv}' | vegeta attack -duration={dur} -rate={rps} |\
@@ -26,22 +27,24 @@ def run_exp(net, exp_str, srv_key):
 
 @click.command()
 @click.option("--net")
-@click.option("--srv")
 @click.option("--exp")
-def run_auto(net, srv, exp):
+@click.option('--setup', type=(unicode, int))
+@click.option('--start', default=1)
+def run_auto(net, exp, setup, start):
     deployments = {
         "g": "garasu",
         "l": "lat",
         "s": "startdash",
         "super": "supergarasu",
+        "xl": "xlgarasu",
     }
     scale_template = "kubectl scale deploy/{selection} --replicas={count}"
     status_template = 'kubectl get deploy/{selection} -o json'
     schemes = range(10, 101, 5)
-    schemes = [10]
+    schemes = [setup[1]]
     experiments = int(exp)
-    deploy = deployments[srv]
-    for exp in range(1,experiments+1):
+    deploy = deployments[setup[0]]
+    for exp in range(start,experiments+1):
         print 'Starting Experiment #{}'.format(exp)
         for g in schemes:
             print 'Starting experiment {} for {}/{}'.format(exp, net, g)
@@ -55,7 +58,7 @@ def run_auto(net, srv, exp):
                 else:
                     cycle += 1
                     time.sleep(10)
-            run_exp(net, '{}_{}'.format(g, exp), srv)
+            run_exp(net, '{}_{}'.format(g, exp), setup[0])
     delegator.run(scale_template.format(selection=deploy, count=1))
 
 run_auto()
