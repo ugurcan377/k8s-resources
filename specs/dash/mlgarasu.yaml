@@ -1,18 +1,18 @@
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: startdash
+  name: mlgarasu
   labels:
-    app: startdash
+    app: mlgarasu
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: startdash
+      app: mlgarasu
   template:
     metadata:
       labels:
-        app: startdash
+        app: mlgarasu
         video: dash
     spec:
       containers:
@@ -24,7 +24,7 @@ spec:
           requests:
             cpu: "10m"
           limits:
-            cpu: "250m"
+            cpu: "1250m"
       - name: vts-exporter
         image: sophos/nginx-vts-exporter
         ports:

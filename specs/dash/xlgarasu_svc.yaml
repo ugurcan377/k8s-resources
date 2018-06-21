@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: xlgarasu-service
+spec:
+  type: NodePort
+  selector:
+    app: xlgarasu
+  ports:
+  - port: 80
+    nodePort: 32227

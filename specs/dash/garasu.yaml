@@ -20,11 +20,6 @@ spec:
         image: ugurcan377/nginx-vts
         ports:
         - containerPort: 80
-        volumeMounts:
-        - mountPath: /var/www/html/dash-videos/garasu
-          name: dash-videos
-        - mountPath: /var/www/html/index.html
-          name: dash-index
         resources:
           requests:
             cpu: "10m"
@@ -34,13 +29,4 @@ spec:
         image: sophos/nginx-vts-exporter
         ports:
         - containerPort: 9913
-      volumes:
-      - name: dash-videos
-        hostPath:
-          path: /opt/dash-videos/garasu
-          type: Directory
-      - name: dash-index
-        hostPath:
-          path: /opt/dash-videos/garasu/garasu.html
-          type: File
 
