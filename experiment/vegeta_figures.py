@@ -1,4 +1,5 @@
 import json
+import os
 
 import click
 import numpy as np
@@ -28,6 +29,7 @@ def file_list_by_scheme(scheme, srv, net, count, conn):
         file_list.append(g_file)
     return file_list
 
+
 def file_list_by_conn(srv_count, srv, net, count, conn_list):
     file_list = []
     fn_template="{srv}_{net}_{g}_{count}_{conn}.json"
@@ -37,8 +39,13 @@ def file_list_by_conn(srv_count, srv, net, count, conn_list):
         file_list.append(g_file)
     return file_list
 
+
 def get_raw_data(fname):
-    return json.load(open(fname))
+    res = json.load(open(fname))
+    if type(res) == unicode:
+        return json.loads(res)
+    else:
+        return res
 
 
 def prepare_datasource(file_list, query):
@@ -57,8 +64,12 @@ def chart(ds_list, scheme, metadata):
     plt.xlabel(metadata['chart']['y'])
     plt.title(metadata['chart']['title'].format(**metadata))
     plt.legend()
-    plt.savefig(open("figures/{ename}_{exp}_{srv}_{conn}_s{scheme}.png".format(**metadata), 'w'))
+    dir_tmp = "figures/{srv}_{conn}"
+    if not os.path.exists(dir_tmp.format(**metadata)):
+        os.makedirs(dir_tmp.format(**metadata))
+    plt.savefig(open("figures/{srv}_{conn}/{ename}_{exp}_{srv}_{conn}_s{scheme}.png".format(**metadata), 'w'))
     plt.clf()
+
 
 def charts_by_scheme(ename, exp_count, chart_meta):
     net_list = ["flannel"]
@@ -83,34 +94,30 @@ def charts_by_scheme(ename, exp_count, chart_meta):
 
 
 def charts_by_conn(ename, exp_count, chart_meta):
-    net_list = ["flannel"]
-    scheme = [1]
-    srv = 'super'
-    conn_list = range(100, 2001, 50)
-    query_list = ["mean", "50th", "95th", "99th", "max"]
-    query_tmp = "latencies/{}"
+    net = chart_meta['net']
+    sch = chart_meta['setup'][1]
+    srv = chart_meta['setup'][0]
+    conn_list = range(*chart_meta['step'])
+    query_list = chart_meta["queries"]
     for exp in range(1, exp_count+1):
-        for net in net_list:
-            for sch in scheme:
-                try:
-                    fl1 = file_list_by_conn(sch, srv, net, exp, conn_list)
-                    ds_list = []
-                    for q in query_list:
-                        ds_list.append((q, prepare_datasource(fl1, query_tmp.format(q))))
-                        chart(ds_list, conn_list, {
-                            "net": net, "conn": sch, "scheme": 1,
-                            "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': q})
-                except IOError as e:
-                    print e
+        try:
+            fl1 = file_list_by_conn(sch, srv, net, exp, conn_list)
+            for q in query_list:
+                ds_list = []
+                ds_list.append((q, prepare_datasource(fl1, q)))
+                chart(ds_list, conn_list, {
+                    "net": net, "conn": sch, "scheme": 1,
+                    "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': q})
+        except IOError as e:
+            print e
 
 
 def avg_charts_by_conn(ename, exp_count, chart_meta):
-    net = "flannel"
+    net = chart_meta['net']
     sch = chart_meta['setup'][1]
     srv = chart_meta['setup'][0]
-    conn_list = range(100, 2001, 50)
-    query_list = ["mean", "50th", "95th", "99th", "max"]
-    query_tmp = "latencies/{}"
+    conn_list = range(*chart_meta['step'])
+    query_list = chart_meta["queries"]
     try:
         mean = lambda res: [sum(k)/len(k) for k in zip(*res)]
         for q in query_list:
@@ -118,22 +125,32 @@ def avg_charts_by_conn(ename, exp_count, chart_meta):
             exp_list = []
             for exp in range(1, exp_count+1):
                 fl1 = file_list_by_conn(sch, srv, net, exp, conn_list)
-                exp_list.append(prepare_datasource(fl1, query_tmp.format(q)))
+                exp_list.append(prepare_datasource(fl1, q))
             ds_list.append((q, mean(exp_list)))
             chart(ds_list, conn_list, {
                 "net": net, "conn": sch, "scheme": 1,
                 "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': "{}_avg".format(q)})
     except IOError as e:
         print e
-
+        
 
 @click.command()
-@click.option('--ctype', type=click.Choice(['scheme', 'conn', 'avgconn']))
+@click.option('--ctype', type=click.Choice(['scheme', 'conn', 'avgconn']), default='avgconn')
 @click.option('--exp', default=1)
 @click.option('--ename', default='subete')
 @click.option('--setup', type=(unicode, int))
-def charts(ctype, exp, ename, setup):
-    meta_data = {'x': "Latency (ms)", "y": "", "title": "", "setup": setup}
+@click.option('--step', type=(int, int, int), default=(100, 4001, 100))
+@click.option('--net', type=click.Choice(['flannel', 'calico', 'weave']), default='flannel')
+@click.option('--alt-query', is_flag=True)
+def charts(ctype, exp, ename, setup, step, net, alt_query):
+    queries = ["latencies/mean", "latencies/50th", "latencies/95th", "latencies/99th",
+     "latencies/max"]
+    if alt_query:
+        queries = ["result/latency/mean", "result/rps/percentile/50", "result/rps/percentile/75",
+         "result/rps/percentile/90",  "result/rps/percentile/95",  "result/rps/percentile/99",
+         "result/latency/max"]
+    meta_data = {'x': "Latency (ms)", "y": "", "title": "", "setup": setup, "step": step,
+     "net": net, "queries": queries}
     
     if ctype == 'scheme':
         meta_data['y'] = "Instance count"
@@ -147,5 +164,6 @@ def charts(ctype, exp, ename, setup):
             charts_by_conn(ename, exp, meta_data)
         if ctype == 'avgconn':
             avg_charts_by_conn(ename, exp, meta_data)
+
 
 charts()

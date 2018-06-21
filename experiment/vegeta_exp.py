@@ -11,8 +11,11 @@ def run_exp(net, exp_str, srv_key):
     "s": "http://10.192.0.3:32225",
     "super": "http://10.192.0.3:32226",
     "xl": "http://10.192.0.3:32227",
+    "ml": "http://10.192.0.3:32228",
+    "sm": "http://10.192.0.3:32229",
+    "la": "http://10.192.0.3:32230",
     }
-    tests = range(100, 2001, 50)
+    tests = range(100, 4001, 100)
     cmd_template = "echo 'GET {srv}' | vegeta attack -duration={dur} -rate={rps} |\
      vegeta report -reporter=json > {result}"
     dur = "2m"
@@ -37,10 +40,12 @@ def run_auto(net, exp, setup, start):
         "s": "startdash",
         "super": "supergarasu",
         "xl": "xlgarasu",
+        "ml": "mlgarasu",
+        "sm": "small",
+        "la": "large",
     }
     scale_template = "kubectl scale deploy/{selection} --replicas={count}"
     status_template = 'kubectl get deploy/{selection} -o json'
-    schemes = range(10, 101, 5)
     schemes = [setup[1]]
     experiments = int(exp)
     deploy = deployments[setup[0]]
