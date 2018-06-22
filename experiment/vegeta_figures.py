@@ -107,7 +107,7 @@ def charts_by_conn(ename, exp_count, chart_meta):
                 ds_list.append((q, prepare_datasource(fl1, q)))
                 chart(ds_list, conn_list, {
                     "net": net, "conn": sch, "scheme": 1,
-                    "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': q})
+                    "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': q.split('/')[-1]})
         except IOError as e:
             print e
 
@@ -129,7 +129,7 @@ def avg_charts_by_conn(ename, exp_count, chart_meta):
             ds_list.append((q, mean(exp_list)))
             chart(ds_list, conn_list, {
                 "net": net, "conn": sch, "scheme": 1,
-                "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': "{}_avg".format(q)})
+                "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': "{}_avg".format(q.split('/')[-1])})
     except IOError as e:
         print e
         
