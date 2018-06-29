@@ -67,7 +67,7 @@ def chart(ds_list, scheme, metadata):
     dir_tmp = "figures/{srv}_{conn}"
     if not os.path.exists(dir_tmp.format(**metadata)):
         os.makedirs(dir_tmp.format(**metadata))
-    plt.savefig(open("figures/{srv}_{conn}/{ename}_{exp}_{srv}_{conn}_s{scheme}.png".format(**metadata), 'w'))
+    plt.savefig(open("figures/{srv}_{conn}/{ename}_{exp}_{srv}_{conn}_{net}_s{scheme}.png".format(**metadata), 'w'))
     plt.clf()
 
 
@@ -146,8 +146,8 @@ def charts(ctype, exp, ename, setup, step, net, alt_query):
     queries = ["latencies/mean", "latencies/50th", "latencies/95th", "latencies/99th",
      "latencies/max"]
     if alt_query:
-        queries = ["result/latency/mean", "result/rps/percentile/50", "result/rps/percentile/75",
-         "result/rps/percentile/90",  "result/rps/percentile/95",  "result/rps/percentile/99",
+        queries = ["result/latency/mean", "result/rps/percentiles/50", "result/rps/percentiles/75",
+         "result/rps/percentiles/90",  "result/rps/percentiles/95",  "result/rps/percentiles/99",
          "result/latency/max"]
     meta_data = {'x': "Latency (ms)", "y": "", "title": "", "setup": setup, "step": step,
      "net": net, "queries": queries}
