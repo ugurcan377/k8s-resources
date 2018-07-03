@@ -132,11 +132,32 @@ def avg_charts_by_conn(ename, exp_count, chart_meta):
                 "exp": exp, "srv": srv, "chart": chart_meta, "sch": sch, 'ename': "{}_avg".format(q.split('/')[-1])})
     except IOError as e:
         print e
-        
+
+
+def multi_avg_charts(exp_count, chart_meta):
+    net = chart_meta['net']
+    conn_list = range(*chart_meta['step'])
+    query_list = chart_meta["queries"]
+    try:
+        mean = lambda res: [sum(k)/len(k) for k in zip(*res)]
+        for q in query_list:
+            ds_list = []
+            for srv, sch in chart_meta['setup']:
+                exp_list = []
+                for exp in range(1, exp_count+1):
+                    if not(srv == 'sm' and sch == 40 and exp == 7):
+                        fl1 = file_list_by_conn(sch, srv, net, exp, conn_list)
+                        exp_list.append(prepare_datasource(fl1, q))
+                ds_list.append(('{}_{}'.format(srv, sch), mean(exp_list)))
+            chart(ds_list, conn_list, {
+                "net": net, "conn": 5000, "scheme": 1, 'q': q,
+                "exp": exp, "srv": 'multi', "chart": chart_meta, "sch": sch, 'ename': "{}_avg".format(q.split('/')[-1])})
+    except IOError as e:
+        print e
 
 @click.command()
-@click.option('--ctype', type=click.Choice(['scheme', 'conn', 'avgconn']), default='avgconn')
-@click.option('--exp', default=1)
+@click.option('--ctype', type=click.Choice(['scheme', 'conn', 'avgconn', 'multi']), default='avgconn')
+@click.option('--exp', default=10)
 @click.option('--ename', default='subete')
 @click.option('--setup', type=(unicode, int))
 @click.option('--step', type=(int, int, int), default=(100, 4001, 100))
@@ -165,5 +186,10 @@ def charts(ctype, exp, ename, setup, step, net, alt_query):
         if ctype == 'avgconn':
             avg_charts_by_conn(ename, exp, meta_data)
 
+    if ctype == 'multi':
+        meta_data['y'] = 'Connection count'
+        meta_data['title'] = "{q}"
+        meta_data['setup'] = (('sm', 40), ('g', 20), ('la', 10))
+        multi_avg_charts(exp, meta_data)
 
 charts()
